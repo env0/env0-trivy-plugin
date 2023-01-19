@@ -1,0 +1,20 @@
+name: trivy
+icon: https://github.com/aquasecurity/trivy/blob/main/brand/Trivy-OSS-Logo-Color-Horizontal-RGB-2022.png?raw=true
+inputs:
+  version:
+    description: The specific version of trivy you wish to use - v0.36.1
+    required: true
+  directory:
+    description: The IaC directory you want to scan with trivy - default to current directory
+    required: false
+  flags:
+    description: Additional trivy flags for config command
+    required: false
+run:
+  exec: |
+    export TRIVY_VERSION="${inputs.version}"
+    export TRIVY_INSTALL_PATH="/home/node/.local/bin"
+    export TRIVY_DIRECTORY=${inputs.directory:=./}
+    mkdir -p ${TFSEC_INSTALL_PATH}
+    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ${TRIVY_INSTALL_PATH} ${TRIVY_VERSION}
+    trivy config ${inputs.flags} ${inputs.directory}
