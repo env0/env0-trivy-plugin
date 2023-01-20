@@ -15,7 +15,9 @@ The tfsec plugin accepts the following inputs:
 
 * `directory` (required) - the path to the directory with the IaC code to analyze (the root folder is your project's root folder)
 
-* `flags` - a string containing additional flags as one string
+* `global-flags` - a string containing global flags as one string, read more [here](https://aquasecurity.github.io/trivy/v0.36/docs/references/customization/config-file/#global-options)
+
+* `flags` - a string containing additional flags as one string, read more [here](https://aquasecurity.github.io/trivy/v0.36/docs/references/cli/config/)
 
 
 ## Example Usage
