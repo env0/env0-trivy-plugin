@@ -7,11 +7,9 @@ This env0 trivy Plugin will allow you to run trivy analysis on an IaC directory 
 
 ## Inputs
 
+The trivy plugin accepts the following inputs:
 
-
-The tfsec plugin accepts the following inputs:
-
-* `version` (required) - the specific version of tfsec you wish to use 
+* `version` (required) - the specific version of `trivy` you wish to use 
 
 * `directory` (required) - the path to the directory with the IaC code to analyze (the root folder is your project's root folder)
 
@@ -24,7 +22,7 @@ The tfsec plugin accepts the following inputs:
 
 
 
-In this example we will run `tfsec` analysis on your root folder before the "Terraform Plan" step of a deploy. We will call that step "My Step Name":
+In this example we will run `trivy` analysis on your root folder before the "Terraform Plan" step of a deploy. We will call that step "My Step Name":
 
 ```yaml
 version: 2
