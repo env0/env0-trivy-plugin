@@ -37,7 +37,7 @@ deploy:
           inputs:
             version: v0.36.1
             directory: .
-            global-flags: --format json
+            global-flags: --format table
             flags: --exit-code 1
 
 ```
