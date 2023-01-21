@@ -17,6 +17,6 @@ run:
   exec: |
     export TRIVY_VERSION="${inputs.version}"
     export TRIVY_INSTALL_PATH="/home/node/.local/bin"
-    mkdir -p ${TFSEC_INSTALL_PATH}
+    mkdir -p ${TRIVY_INSTALL_PATH}
     curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ${TRIVY_INSTALL_PATH} ${TRIVY_VERSION}
     trivy ${inputs.global-flags} config ${inputs.flags} ${inputs.directory}
