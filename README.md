@@ -9,7 +9,7 @@ This env0 trivy Plugin will allow you to run trivy analysis on an IaC directory 
 
 The trivy plugin accepts the following inputs:
 
-* `version` (required) - the specific version of `trivy` you wish to use 
+* `version` (required) - the version of `trivy` to install, such as `v0.76.1`, or `latest`. The plugin downloads it from [Trivy's GitHub releases](https://github.com/aquasecurity/trivy/releases) and checks its SHA-256 checksum. Trivy no longer publishes v0.27.0 to v0.69.1 there, so those versions can't be installed.
 
 * `directory` (required) - the path to the directory with the IaC code to analyze (the root folder is your project's root folder)
 
@@ -33,7 +33,7 @@ deploy:
         - name: My Step Name # The name that will be presented in the UI for this step
           use: https://github.com/env0/env0-trivy-plugin
           inputs:
-            version: v0.36.1
+            version: v0.76.1
             directory: .
             global-flags: --format table
             flags: --exit-code 1

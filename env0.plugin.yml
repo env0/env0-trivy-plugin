@@ -2,7 +2,7 @@ name: Trivy
 icon: https://github.com/aquasecurity/trivy/blob/main/brand/Trivy-OSS-Logo-Color-Horizontal-RGB-2022.png?raw=true
 inputs:
   version:
-    description: The specific version of Trivy you wish to use - v0.36.1
+    description: The Trivy version to install, such as v0.76.1, or latest
     required: true
   directory:
     description: The IaC directory you want to scan with Trivy
@@ -15,8 +15,31 @@ inputs:
     required: false
 run:
   exec: |
-    export TRIVY_VERSION="${inputs.version}"
-    export TRIVY_INSTALL_PATH="/home/node/.local/bin"
-    mkdir -p ${TRIVY_INSTALL_PATH}
-    curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b ${TRIVY_INSTALL_PATH} ${TRIVY_VERSION}
-    trivy ${inputs.global-flags} config ${inputs.flags} ${inputs.directory}
+    trivy_version="${inputs.version}"
+    install_dir="/home/node/.local/bin"
+    releases="https://github.com/aquasecurity/trivy/releases"
+    if [ "$trivy_version" = "latest" ]; then
+      trivy_version=$(curl -fsSL --retry 3 -o /dev/null -w '%{url_effective}' "$releases/latest") || { echo "Couldn't look up the latest Trivy release" >&2; exit 1; }
+      trivy_version="${trivy_version##*/}"
+    fi
+    trivy_version="${trivy_version#v}"
+    # env0 agent images are built for amd64 and arm64 only.
+    case "$(uname -m)" in
+      x86_64|amd64) trivy_arch=64bit ;;
+      aarch64|arm64) trivy_arch=ARM64 ;;
+      *) echo "No Trivy build for this architecture: $(uname -m)" >&2; exit 1 ;;
+    esac
+    tarball="trivy_${trivy_version}_Linux-${trivy_arch}.tar.gz"
+    checksums="trivy_${trivy_version}_checksums.txt"
+    download_dir=$(mktemp -d)
+    for file in "$tarball" "$checksums"; do
+      curl -fsSL --retry 3 -o "$download_dir/$file" "$releases/download/v$trivy_version/$file" || { echo "Couldn't download $releases/download/v$trivy_version/$file" >&2; exit 1; }
+    done
+    expected=$(awk -v name="$tarball" '$2 == name { print $1 }' "$download_dir/$checksums")
+    actual=$(sha256sum "$download_dir/$tarball" | cut -d ' ' -f 1)
+    [ -n "$expected" ] && [ "$expected" = "$actual" ] || { echo "Checksum mismatch for $tarball" >&2; exit 1; }
+    mkdir -p "$install_dir"
+    tar -xzf "$download_dir/$tarball" -C "$install_dir" trivy || { echo "Couldn't extract trivy from $tarball" >&2; exit 1; }
+    rm -rf "$download_dir"
+    echo "Installed Trivy v$trivy_version"
+    "$install_dir/trivy" ${inputs.global-flags} config ${inputs.flags} ${inputs.directory}
